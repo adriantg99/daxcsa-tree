@@ -2,16 +2,23 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Árbol Genealógico Daxcsa</title>
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <meta charset="UTF-8">
+    <title>Árbol Genealógico</title>
+    <link rel="stylesheet" href="assets/css/style.css" /> 
 </head>
 
 <body>
-    <h1>Árbol Genealógico Daxcsa</h1>
-    <button id="btn-parent" style="display:none;">⬆ Back to main node</button>
+    <h1>Árbol Genealógico</h1>
+
+    
     <div id="tree-container"></div>
+
+    <div id="details" style="display: none;"></div>
+
+    
+    <button id="btn-parent" style="display: none;">⬆️ Subir al padre</button>
     <div id="node-details" style="display:none;"></div>
+
     <script>
         const fullTree = <?php echo json_encode($tree, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         console.log(fullTree);

@@ -74,6 +74,24 @@ document.addEventListener("DOMContentLoaded", () => {
       <p><strong>Colocación:</strong> ${node.binary_placement || 'N/A'}</p>
     `;
     }
+    function createNodeElement(userWrapper) {
+        const node = extractNode(userWrapper);
+        if (!node) return document.createTextNode("Nodo inválido");
+
+        const div = document.createElement("div");
+        div.className = "node";
+        div.textContent = `${node.full_name}\n(${node.username})`;
+
+        div.title = `Usuario: ${node.username}\nProducto: ${node.product_name}\nEstado: ${node.status}`;
+
+        div.addEventListener("click", () => {
+            showDetails(node);
+            currentRoot = userWrapper;
+            renderTree();
+        });
+
+        return div;
+    }
 
     function renderTree() {
         container.innerHTML = "";
@@ -91,62 +109,34 @@ document.addEventListener("DOMContentLoaded", () => {
             btnParent.style.display = "none";
         }
 
-        const rootDiv = createNode(currentRoot);
-        rootDiv.classList.add("root-node");
-        container.appendChild(rootDiv);
+        // Function to build the tree HTML recursively
+        function buildTreeHTML(nodeWrapper) {
+            const node = extractNode(nodeWrapper);
+            if (!node) return null;
 
-        // validate if rootNode has children
-        if (Array.isArray(rootNode.children) && rootNode.children.length > 0) {
-            const level1 = document.createElement("div");
-            level1.className = "level level-1";
-            level1.style.display = "flex";
-            level1.style.justifyContent = "center";
-            level1.style.marginTop = "20px";
-            level1.style.gap = "20px";
+            const li = document.createElement("li");
+            li.appendChild(createNodeElement(nodeWrapper));
 
-            rootNode.children.forEach(childWrapper => {
-                const childNode = extractNode(childWrapper);
-                if (!childNode) {
-                    console.warn("Nodo hijo inválido:", childWrapper);
-                    return; // skip invalid nodes
-                }
-
-                const childDiv = createNode(childWrapper);
-
-                if (Array.isArray(childNode.children) && childNode.children.length > 0) {
-                    const level2 = document.createElement("div");
-                    level2.className = "level level-2";
-                    level2.style.display = "flex";
-                    level2.style.justifyContent = "center";
-                    level2.style.marginTop = "10px";
-                    level2.style.gap = "15px";
-                    level2.style.marginLeft = "20px";
-
-                    childNode.children.forEach(grandChildWrapper => {
-                        const grandChildNode = extractNode(grandChildWrapper);
-                        if (!grandChildNode) {
-                            console.warn("Nieto inválido:", grandChildWrapper);
-                            return;
-                        }
-                        const grandChildDiv = createNode(grandChildWrapper);
-                        level2.appendChild(grandChildDiv);
-                    });
-
-                    childDiv.appendChild(level2);
-                }
-
-                // Set the order based on binary placement
-                if (childNode.binary_placement === "Left") {
-                    childDiv.style.order = 1;
-                } else if (childNode.binary_placement === "Right") {
-                    childDiv.style.order = 2;
-                }
-
-                level1.appendChild(childDiv);
-            });
-
-            container.appendChild(level1);
+            if (Array.isArray(node.children) && node.children.length > 0) {
+                const ul = document.createElement("ul");
+                node.children.forEach(childWrapper => {
+                    const childLi = buildTreeHTML(childWrapper);
+                    if (childLi) ul.appendChild(childLi);
+                });
+                li.appendChild(ul);
+            }
+            return li;
         }
+
+        const treeRoot = document.createElement("div");
+        treeRoot.className = "tree";
+
+        const ulRoot = document.createElement("ul");
+        const liRoot = buildTreeHTML(currentRoot);
+        if (liRoot) ulRoot.appendChild(liRoot);
+
+        treeRoot.appendChild(ulRoot);
+        container.appendChild(treeRoot);
     }
 
 
