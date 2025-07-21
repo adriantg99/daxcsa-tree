@@ -9,7 +9,7 @@
 
 <body>
     <h1>Árbol Genealógico Daxcsa</h1>
-    <button id="btn-parent" style="display:none;">⬆ Volver al padre</button>
+    <button id="btn-parent" style="display:none;">⬆ Back to main node</button>
     <div id="tree-container"></div>
     <div id="node-details" style="display:none;"></div>
     <script>
