@@ -3,28 +3,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const details = document.getElementById("node-details");
     const btnParent = document.getElementById("btn-parent");
 
-    let currentRoot = fullTree;
-    let parentsMap = new Map(); // Para subir al padre rápido: childId => parentNode
+    let currentRoot = fullTree; // Tree from php
+    let parentsMap = new Map();
 
-    // Construye un mapa id->nodo para facilitar navegación padre
-    function buildParentsMap(node, parent = null) {
-        if (node.children) {
-            node.children.forEach(child => {
-                parentsMap.set(child.distributor_id, node);
-                buildParentsMap(child, node);
+    // Extracts the node from the userWrapper
+    function extractNode(userWrapper) {
+        // If userWrapper is already a node object, return it directly
+        if (userWrapper?.data?.attributes?.length > 0) {
+            return userWrapper.data.attributes[0];
+        }
+        // if userWrapper is a simple object, return it directly
+        return userWrapper;
+    }
+
+
+    // Builds a map of parents for quick access
+    function buildParentsMap(nodeWrapper, parentWrapper = null) {
+        const node = extractNode(nodeWrapper);
+        if (!node) return;
+
+        if (node.children && node.children.length > 0) {
+            node.children.forEach(childWrapper => {
+                const childNode = extractNode(childWrapper);
+                if (!childNode) return; // <-- Prevent errors for invalid nodes
+                parentsMap.set(childNode.distributor_id, nodeWrapper);
+                buildParentsMap(childWrapper, nodeWrapper);
             });
         }
     }
+
     buildParentsMap(fullTree);
 
-    // Crea un nodo visual
-    function createNode(user) {
-        // Aquí extraemos los datos reales:
-        const node = user?.data?.attributes?.[0];
+    function createNode(userWrapper) {
+        const node = extractNode(userWrapper);
         if (!node) return document.createTextNode("Nodo inválido");
-
-        const fullName = node.full_name || "Sin Nombre";
-        const username = node.username || "Sin Usuario";
 
         const div = document.createElement("div");
         div.className = "node";
@@ -35,91 +47,117 @@ document.addEventListener("DOMContentLoaded", () => {
         div.style.width = "200px";
         div.style.textAlign = "center";
         div.style.cursor = "pointer";
-        div.textContent = `${fullName} (${username})`;
+
+        div.textContent = `${node.full_name} (${node.username})`;
 
         div.addEventListener("click", () => {
             showDetails(node);
-            currentRoot = user; // o currentRoot = node; depende cómo manejas árbol
+            currentRoot = userWrapper;
             renderTree();
         });
+
+        // Add tooltip with additional information
+        div.title = `Usuario: ${node.username}\nProducto: ${node.product_name}\nEstado: ${node.status}`;
 
         return div;
     }
 
-
-    // Muestra detalles del nodo seleccionado
-    function showDetails(user) {
+    function showDetails(node) {
         details.style.display = "block";
         details.innerHTML = `
-      <h2>${user.full_name}</h2>
-      <p><strong>Usuario:</strong> ${user.username}</p>
-      <p><strong>ID:</strong> ${user.distributor_id}</p>
-      <p><strong>Status:</strong> ${user.status}</p>
-      <p><strong>Producto:</strong> ${user.product_name}</p>
-      <p><strong>Categoría:</strong> ${user.category_name}</p>
-      <p><strong>Colocación:</strong> ${user.binary_placement || 'N/A'}</p>
+      <h2>${node.full_name}</h2>
+      <p><strong>Usuario:</strong> ${node.username}</p>
+      <p><strong>ID:</strong> ${node.distributor_id}</p>
+      <p><strong>Status:</strong> ${node.status}</p>
+      <p><strong>Producto:</strong> ${node.product_name}</p>
+      <p><strong>Categoría:</strong> ${node.category_name}</p>
+      <p><strong>Colocación:</strong> ${node.binary_placement || 'N/A'}</p>
     `;
     }
 
-    // Renderiza el árbol limitado a 2 niveles a partir de currentRoot
     function renderTree() {
         container.innerHTML = "";
         details.style.display = "none";
 
-        if (parentsMap.has(currentRoot.distributor_id)) {
+        const rootNode = extractNode(currentRoot);
+        if (!rootNode) {
+            container.textContent = "Nodo raíz inválido";
+            return;
+        }
+
+        if (parentsMap.has(rootNode.distributor_id)) {
             btnParent.style.display = "inline-block";
         } else {
             btnParent.style.display = "none";
         }
 
-        console.log("Renderizando nodo raíz:", currentRoot.full_name);
+        const rootDiv = createNode(currentRoot);
+        rootDiv.classList.add("root-node");
+        container.appendChild(rootDiv);
 
-        const rootNode = createNode(currentRoot);
-        rootNode.classList.add("root-node");
-        container.appendChild(rootNode);
-
-        if (currentRoot.children && currentRoot.children.length > 0) {
+        // validate if rootNode has children
+        if (Array.isArray(rootNode.children) && rootNode.children.length > 0) {
             const level1 = document.createElement("div");
             level1.className = "level level-1";
+            level1.style.display = "flex";
+            level1.style.justifyContent = "center";
+            level1.style.marginTop = "20px";
+            level1.style.gap = "20px";
 
-            currentRoot.children.forEach(child => {
-                const childNode = createNode(child);
-                console.log("Nodo hijo:", child.full_name);
+            rootNode.children.forEach(childWrapper => {
+                const childNode = extractNode(childWrapper);
+                if (!childNode) {
+                    console.warn("Nodo hijo inválido:", childWrapper);
+                    return; // skip invalid nodes
+                }
 
-                if (child.children && child.children.length > 0) {
+                const childDiv = createNode(childWrapper);
+
+                if (Array.isArray(childNode.children) && childNode.children.length > 0) {
                     const level2 = document.createElement("div");
                     level2.className = "level level-2";
+                    level2.style.display = "flex";
+                    level2.style.justifyContent = "center";
+                    level2.style.marginTop = "10px";
+                    level2.style.gap = "15px";
+                    level2.style.marginLeft = "20px";
 
-                    child.children.forEach(grandChild => {
-                        const grandChildNode = createNode(grandChild);
-                        level2.appendChild(grandChildNode);
+                    childNode.children.forEach(grandChildWrapper => {
+                        const grandChildNode = extractNode(grandChildWrapper);
+                        if (!grandChildNode) {
+                            console.warn("Nieto inválido:", grandChildWrapper);
+                            return;
+                        }
+                        const grandChildDiv = createNode(grandChildWrapper);
+                        level2.appendChild(grandChildDiv);
                     });
 
-                    childNode.appendChild(level2);
+                    childDiv.appendChild(level2);
                 }
 
-                // Estilo según binary_placement
-                if (child.binary_placement === "Left") {
-                    childNode.classList.add("left-child");
-                } else if (child.binary_placement === "Right") {
-                    childNode.classList.add("right-child");
+                // Set the order based on binary placement
+                if (childNode.binary_placement === "Left") {
+                    childDiv.style.order = 1;
+                } else if (childNode.binary_placement === "Right") {
+                    childDiv.style.order = 2;
                 }
 
-                level1.appendChild(childNode);
+                level1.appendChild(childDiv);
             });
 
             container.appendChild(level1);
         }
     }
 
+
     btnParent.addEventListener("click", () => {
-        if (parentsMap.has(currentRoot.distributor_id)) {
-            currentRoot = parentsMap.get(currentRoot.distributor_id);
+        const rootNode = extractNode(currentRoot);
+        if (rootNode && parentsMap.has(rootNode.distributor_id)) {
+            currentRoot = parentsMap.get(rootNode.distributor_id);
             renderTree();
             details.style.display = "none";
         }
     });
 
-    // Render inicial
     renderTree();
 });
