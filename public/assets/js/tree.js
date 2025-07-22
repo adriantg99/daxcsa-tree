@@ -96,7 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const sideCounts = countDescendantsBySide(node);
 
-
         const li = document.createElement("li");
         li.style.position = 'relative';
 
@@ -112,44 +111,17 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div class="node-status" style="background:${getStatusColor(node.status)}">${node.status}</div>
     `;
-        
-        if (!isMobile) {
-            const hoverInfo = document.createElement("div");
-            hoverInfo.className = "hover-info";
-            if (level === 0) {
-                hoverInfo.style.top = "calc(0% + 10px)"; 
-                hoverInfo.style.bottom = "auto";        
-                hoverInfo.style.transform = "translateX(-50%)"; 
-            }
 
-            hoverInfo.innerHTML = `
-            <div class="hover-info-content">
-                <h4>${node.full_name}</h4>
-                <p><strong>ID:</strong> ${node.distributor_id}</p>
-                <p><strong>Username:</strong> ${node.username}</p>
-                <p><strong>Status:</strong> <span style="color:${getStatusColor(node.status)}">${node.status}</span></p>
-                <p><strong>Product:</strong> ${node.product_name || 'None'}</p>
-                ${node.category_name ? `<p><strong>Category:</strong> ${node.category_name}</p>` : ''}
-                ${node.parent_id ? `<p><strong>Parent ID:</strong> ${node.parent_id}</p>` : ''}
-                
-                <p><strong>Left:</strong> ${sideCounts.Left}</p>
-                <p><strong>Right:</strong> ${sideCounts.Right}</p>
-            </div>`;
+        const hoverInfo = document.createElement("div");
+        hoverInfo.className = "hover-info";
 
-            li.appendChild(hoverInfo); 
-         
-            li.appendChild(hoverInfo); 
+        if (level === 0) {
+            hoverInfo.style.top = "calc(0% + 10px)";
+            hoverInfo.style.bottom = "auto";
+            hoverInfo.style.transform = "translateX(-50%)";
         }
-        else {
-            const hoverInfo = document.createElement("div");
-            hoverInfo.className = "hover-info";
 
-                if (level === 0) {
-                hoverInfo.style.top = "calc(0% + 10px)"; 
-                hoverInfo.style.bottom = "auto";           
-                hoverInfo.style.transform = "translateX(-50%)"; 
-            }
-            hoverInfo.innerHTML = `
+        hoverInfo.innerHTML = `
         <div class="hover-info-content">
             <h4>${node.full_name}</h4>
             <p><strong>ID:</strong> ${node.distributor_id}</p>
@@ -158,11 +130,12 @@ document.addEventListener("DOMContentLoaded", () => {
             <p><strong>Product:</strong> ${node.product_name || 'None'}</p>
             ${node.category_name ? `<p><strong>Category:</strong> ${node.category_name}</p>` : ''}
             ${node.parent_id ? `<p><strong>Parent ID:</strong> ${node.parent_id}</p>` : ''}
-            ${node.num_children ? `<p><strong>Children:</strong> ${node.num_children}</p>` : ''}
+            ${node.num_children && isMobile ? `<p><strong>Children:</strong> ${node.num_children}</p>` : ''}
         </div>`;
 
-            li.appendChild(hoverInfo);
+        li.appendChild(hoverInfo);
 
+        if (isMobile) {
             nodeDiv.addEventListener("click", function (e) {
                 e.stopPropagation();
 
@@ -175,13 +148,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 hoverInfo.classList.toggle("mobile-visible");
             });
 
-            document.addEventListener("click", function (e) {
-                if (!e.target.closest("li") && !e.target.closest(".hover-info")) {
-                    document.querySelectorAll(".hover-info.mobile-visible").forEach(el => {
-                        el.classList.remove("mobile-visible");
-                    });
-                }
-            });
+            if (!window.mobileHoverCloseListenerAdded) {
+                document.addEventListener("click", function (e) {
+                    if (!e.target.closest(".node") && !e.target.closest(".hover-info")) {
+                        document.querySelectorAll(".hover-info.mobile-visible").forEach(el => {
+                            el.classList.remove("mobile-visible");
+                        });
+                    }
+                });
+                window.mobileHoverCloseListenerAdded = true;
+            }
         }
 
         li.appendChild(nodeDiv);
@@ -192,9 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
             li.appendChild(verticalConnector);
         }
 
-        // Manejo de hijos y expansión
         if (node.children && (forceExpand || level < MAX_INITIAL_LEVELS)) {
-
             const ul = document.createElement("ul");
             ul.className = "level-" + (level + 1);
 
@@ -212,8 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     updateConnectorLines();
                 });
             }
-        }
-        else if (node.children && node.children.length > 0) {
+        } else if (node.children && node.children.length > 0) {
             const expandIndicator = document.createElement("div");
             expandIndicator.className = "expand-indicator";
             expandIndicator.textContent = `▼ ${node.children.length} children ▼`;
@@ -237,6 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         return li;
     }
+
     document.addEventListener("mouseover", function (e) {
         // Desktop only
         if (!isMobile && e.target.closest(".node")) {
@@ -434,5 +408,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initial render
     renderTree();
-  
+
 });
