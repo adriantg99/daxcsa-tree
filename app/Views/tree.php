@@ -3,20 +3,21 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Árbol Genealógico</title>
-    <link rel="stylesheet" href="assets/css/style.css" /> 
+    <title>Genealogy tree</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 
 <body>
-    <h1>Árbol Genealógico</h1>
+    <h1>Genealogy tree</h1>
 
-    
+
     <div id="tree-container"></div>
 
     <div id="details" style="display: none;"></div>
 
-    
-    <button id="btn-parent" style="display: none;">⬆️ Subir al padre</button>
+
+    <button id="btn-parent" style="display: none;">⬆ Subir al padre</button>
+
     <div id="node-details" style="display:none;"></div>
 
     <script>

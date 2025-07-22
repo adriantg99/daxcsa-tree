@@ -1,161 +1,139 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  margin: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-x: auto;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
 }
 
 #tree-container {
-  min-height: 300px;
-  border: 2px solid red;
-  padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    overflow: auto;
+    max-width: 100%;
+    padding: 10px;
+    min-height: 70vh;
+}
+
+/* Tree container */
+.tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 0;
 }
 
 .tree ul {
-  padding-top: 20px;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  list-style-type: none;
-  margin: 0;
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+    position: relative;
+    list-style: none;
+    margin: 0;
 }
 
-.tree ul ul {
-  margin-left: 20px;
-  justify-content: flex-start;
-}
-
+/* Tree nodes */
 .tree li {
-  text-align: center;
-  position: relative;
-  padding: 20px 5px 0 5px;
-  flex: 1;
+    position: relative;
+    text-align: center;
+    padding: 20px 10px 0 10px;
 }
 
-
+/* Connector lines */
 .tree li::before, .tree li::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  border-top: 2px solid #ccc;
-  width: 50%;
-  height: 20px;
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 20px;
+    border-top: 2px solid #ccc;
 }
 
 .tree li::before {
-  left: 50%;
-  border-left: 2px solid #ccc;
-  border-radius: 5px 0 0 0;
+    left: -50%;
+    border-right: 2px solid #ccc;
 }
 
 .tree li::after {
-  right: 50%;
-  border-radius: 0 5px 0 0;
-  border-right: 2px solid #ccc;
+    right: -50%;
+    border-left: 2px solid #ccc;
 }
-
 
 .tree li:only-child::before,
 .tree li:only-child::after {
-  content: none;
+    display: none;
 }
 
-/* Nodo (caja) */
+.tree li:only-child {
+    padding-top: 0;
+}
+
+.tree li:first-child::before,
+.tree li:last-child::after {
+    border: none;
+}
+
+/* Node visual */
 .node {
-  border: 2px solid #007BFF;
-  padding: 10px 15px;
-  display: inline-block;
-  border-radius: 8px;
-  background-color: #D0E9FF;
-  cursor: pointer;
-  min-width: 180px;
-  max-width: 250px;
-  word-wrap: break-word;
-  font-weight: 600;
-  color: #003366;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  transition: background-color 0.3s ease;
+    display: inline-block;
+    padding: 10px 15px;
+    border: 2px solid #007BFF;
+    background-color: #D0E9FF;
+    border-radius: 8px;
+    cursor: pointer;
+    min-width: 160px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+    white-space: nowrap;
 }
 
 .node:hover {
-  background-color: #a9c8ff;
+    background-color: #B0D8FF;
+    transform: scale(1.05);
 }
 
-.tree ul > li > ul::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  border-left: 2px solid #ccc;
-  width: 0;
-  height: 20px;
+/* Button to go up */
+#btn-parent {
+    margin-top: 20px;
+    padding: 10px 18px;
+    font-size: 16px;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-
-.node {
-  border: 1px solid #aaa;
-  border-radius: 5px;
-  padding: 10px;
-  margin: 5px;
-  cursor: pointer;
-  width: 180px;
-  text-align: center;
-  background: #f5f5f5;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-  transition: background 0.3s;
+#btn-parent:hover {
+    background-color: #0056b3;
 }
 
-.node:hover {
-  background: #e0f0ff;
-}
+/* Responsive fix */
+@media (max-width: 768px) {
+    .node {
+        min-width: 120px;
+        font-size: 14px;
+    }
 
-.root-node {
-  font-weight: bold;
-  background: #d0eaff;
-  width: 220px;
-}
-
-.level-1 {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  gap: 20px;
-}
-
-.level-2 {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-  gap: 15px;
-  flex-wrap: wrap;
-  margin-left: 20px;
-}
-
-.left-child {
-  order: 1;
-}
-
-.right-child {
-  order: 2;
-}
-
-#node-details {
-  margin-top: 20px;
-  padding: 15px;
-  border: 1px solid #bbb;
-  background: #fafafa;
-  max-width: 300px;
-  border-radius: 8px;
-}
-
-/* Móvil */
-@media (max-width: 600px) {
-  #tree-container {
-    flex-direction: column;
-  }
-  .level-1, .level-2 {
-    flex-direction: column;
-    gap: 10px;
-  }
-  .node {
-    width: 100%;
-  }
+    #btn-parent {
+        font-size: 14px;
+        padding: 8px 14px;
+    }
 }
