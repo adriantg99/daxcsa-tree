@@ -1,42 +1,48 @@
-html, body {
-    height: 100%;
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f9f9f9;
+    padding: 0;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
     padding: 20px;
-    box-sizing: border-box;
-    overflow-x: auto;
+    background-color: #f5f5f5;
 }
 
 h1 {
-    color: #333;
+    color: #2c3e50;
     margin-bottom: 20px;
+    text-align: center;
 }
 
 #tree-container {
-    display: flex;
-    justify-content: center;
-    align-items: start;
+    width: 100%;
     overflow: auto;
-    max-width: 100%;
-    padding: 10px;
-    min-height: 70vh;
+    padding: 20px;
+    text-align: center;
 }
 
-/* Tree container */
-.tree {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.tree-wrapper {
+    display: inline-block;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.tree-container {
+    display: inline-block;
     position: relative;
-    padding: 0;
+}
+
+/* Árbol centrado */
+.tree {
+    display: inline-block;
+    position: relative;
+    margin: 0 auto;
+    padding-top: 20px;
+    text-align: center;
 }
 
 .tree ul {
@@ -44,38 +50,42 @@ h1 {
     justify-content: center;
     padding-top: 20px;
     position: relative;
-    list-style: none;
     margin: 0;
+    padding-left: 0;
+    list-style: none;
 }
 
-/* Tree nodes */
 .tree li {
-    position: relative;
+    float: none;
+    display: inline-block;
     text-align: center;
-    padding: 20px 10px 0 10px;
+    position: relative;
+    padding: 20px 5px 0 5px;
+    vertical-align: top;
 }
 
-/* Connector lines */
+
 .tree li::before, .tree li::after {
     content: '';
     position: absolute;
     top: 0;
     width: 50%;
     height: 20px;
-    border-top: 2px solid #ccc;
+    border-top: 2px solid #3498db;
 }
 
 .tree li::before {
-    left: -50%;
-    border-right: 2px solid #ccc;
+    right: 50%;
+    border-right: 2px solid #3498db;
 }
 
 .tree li::after {
-    right: -50%;
-    border-left: 2px solid #ccc;
+    left: 50%;
+    border-left: 2px solid #3498db;
 }
 
-.tree li:only-child::before,
+
+.tree li:only-child::before, 
 .tree li:only-child::after {
     display: none;
 }
@@ -84,56 +94,48 @@ h1 {
     padding-top: 0;
 }
 
-.tree li:first-child::before,
-.tree li:last-child::after {
-    border: none;
-}
 
-/* Node visual */
 .node {
     display: inline-block;
-    padding: 10px 15px;
-    border: 2px solid #007BFF;
-    background-color: #D0E9FF;
-    border-radius: 8px;
-    cursor: pointer;
+    padding: 8px 12px;
+    border: 2px solid #3498db;
+    background: #eaf2f8;
+    border-radius: 6px;
     min-width: 160px;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-    transition: transform 0.2s ease;
-    white-space: nowrap;
+    margin: 0 5px;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+
+.expand-indicator {
+    font-size: 0.8em;
+    color: #7f8c8d;
+    padding: 5px;
+    cursor: pointer;
+    background: #f0f0f0;
+    border-radius: 4px;
+    margin-top: 5px;
+    transition: all 0.3s;
+}
+
+.expand-indicator:hover {
+    background: #3498db;
+    color: white;
+}
+
+
+.node {
+    transition: all 0.3s;
 }
 
 .node:hover {
-    background-color: #B0D8FF;
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* Button to go up */
-#btn-parent {
-    margin-top: 20px;
-    padding: 10px 18px;
-    font-size: 16px;
-    border: none;
-    background-color: #007BFF;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
 
-#btn-parent:hover {
-    background-color: #0056b3;
-}
-
-/* Responsive fix */
-@media (max-width: 768px) {
-    .node {
-        min-width: 120px;
-        font-size: 14px;
-    }
-
-    #btn-parent {
-        font-size: 14px;
-        padding: 8px 14px;
-    }
+.tree ul {
+    transition: all 0.5s ease-out;
 }
